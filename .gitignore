@@ -1,0 +1,29 @@
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+!.env.example
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (root-level)
+node_modules/

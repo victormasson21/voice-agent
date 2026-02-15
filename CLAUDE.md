@@ -1,23 +1,27 @@
-# LiveKit Voice Agent
+# Reflect — Guided Journaling Companion
 
 ## Project Overview
 
-Real-time voice AI assistant combining a Python backend agent with a Next.js React frontend. Users interact with an AI agent via voice through LiveKit's communication infrastructure.
+Voice-based self-reflection tool. Users authenticate, have short (<10 minute) voice conversations with an AI journaling companion, and receive structured session records (mood, tone, topics, decisions — no raw transcript). Previous sessions provide longitudinal context for future conversations.
 
 ## Architecture
 
 ```
 livekit-voice-agent/
-├── agent/          # Python voice agent (LiveKit Agents SDK)
-└── frontend/       # Next.js 15 React UI
+├── agent/          # Python journaling agent (LiveKit Agents SDK)
+└── frontend/       # Next.js 15 React UI with Supabase auth
 ```
 
 ### Agent (`agent/`)
 
-- **Entry point**: `agent/agent.py` — defines `VoiceAgent` class and `entrypoint` function
-- **Model**: OpenAI Realtime (`gpt-realtime-mini`, voice: `alloy`) — speech-to-speech, no separate STT/TTS
-- **Tools**: `save_note(note)` and `get_notes()` — in-memory note storage per session
+- **Entry point**: `agent/agent.py` — `entrypoint` function, session lifecycle, auto-close timer
+- **Prompt builder**: `agent/prompts.py` — builds system prompt with session context
+- **Session store**: `agent/session_store.py` — Supabase read/write for session records
+- **Extractor**: `agent/extractor.py` — post-session LLM extraction of structured record
+- **Model**: OpenAI Realtime (`gpt-realtime-mini`, voice: `alloy`) — speech-to-speech
+- **No tools**: agent is purely conversational (no function tools)
 - **Noise cancellation**: BVC via `livekit-plugins-noise-cancellation`
+- **Turn detection**: 800ms silence duration (longer for reflective pauses)
 - **Framework**: `livekit-agents ~1.3` with openai, silero, and turn-detector plugins
 - **Python**: >= 3.13
 - **Package manager**: `uv` (lock file: `uv.lock`)
@@ -26,29 +30,48 @@ livekit-voice-agent/
 ### Frontend (`frontend/`)
 
 - **Framework**: Next.js 15.5.9 with Turbopack, React 19, TypeScript 5
+- **Auth**: Supabase magic link / email OTP (`@supabase/ssr`)
 - **Styling**: Tailwind CSS 4, shadcn/ui components, Motion (Framer Motion)
 - **LiveKit SDK**: `livekit-client`, `@livekit/components-react`, `livekit-server-sdk`
 - **Package manager**: pnpm 9.15.9
-- **App config**: `frontend/app-config.ts` — branding, feature flags, accent colors
+- **App config**: `frontend/app-config.ts` — branding (Reflect), feature flags
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `agent/agent.py` | Voice agent: model config, tools, session setup |
+| `agent/agent.py` | Journaling agent: session lifecycle, auto-close, extraction |
+| `agent/prompts.py` | System prompt builder with session context |
+| `agent/session_store.py` | Supabase CRUD for session records |
+| `agent/extractor.py` | Post-session structured record extraction |
 | `agent/pyproject.toml` | Python dependencies |
 | `agent/.env.local` | Agent environment variables |
-| `frontend/app-config.ts` | UI configuration (branding, features) |
-| `frontend/app/api/connection-details/route.ts` | Token generation API endpoint |
-| `frontend/app/page.tsx` | Main page |
-| `frontend/app/layout.tsx` | Root layout with theme provider |
+| `frontend/app-config.ts` | UI configuration (Reflect branding) |
+| `frontend/middleware.ts` | Auth session refresh, redirect to /login |
+| `frontend/lib/supabase/client.ts` | Browser Supabase client |
+| `frontend/lib/supabase/server.ts` | Server Supabase client |
+| `frontend/app/login/page.tsx` | Magic link login page |
+| `frontend/app/auth/callback/route.ts` | Magic link callback handler |
+| `frontend/app/api/connection-details/route.ts` | Token generation (auth-gated, user_id in room) |
+| `frontend/app/page.tsx` | Main page (auth gate) |
+| `frontend/components/app/welcome-view.tsx` | Home screen: session list + start button |
+| `frontend/components/app/session-view.tsx` | Minimal voice UI: timer + pulsing indicator |
+| `frontend/components/app/view-controller.tsx` | View routing (home vs active session) |
 | `frontend/components/app/app.tsx` | Root app component (LiveKit session init) |
-| `frontend/components/app/session-view.tsx` | Main session UI (controls, tiles, chat) |
-| `frontend/components/app/welcome-view.tsx` | Welcome/landing screen |
-| `frontend/components/agents-ui/` | LiveKit agent UI components (visualizers, controls, chat) |
-| `frontend/components/ui/` | shadcn/ui primitives |
-| `frontend/hooks/` | Custom hooks (debug, errors, audio visualizers) |
-| `frontend/styles/globals.css` | Global styles with CSS variables |
+
+## Database Schema
+
+Supabase Postgres table `sessions`:
+- `id` (uuid, PK)
+- `user_id` (uuid, FK to auth.users)
+- `created_at` (timestamptz)
+- `duration_seconds` (int)
+- `mood` (text)
+- `tone` (text)
+- `topics` (text[])
+- `decisions` (text[])
+
+RLS: users can read/delete own sessions. Agent writes via service role key.
 
 ## Environment Variables
 
@@ -58,8 +81,9 @@ livekit-voice-agent/
 LIVEKIT_API_KEY=<key>
 LIVEKIT_API_SECRET=<secret>
 LIVEKIT_URL=wss://<project>.livekit.cloud
-NEXT_PUBLIC_LIVEKIT_URL=wss://<project>.livekit.cloud
 OPENAI_API_KEY=<key>
+SUPABASE_URL=<your-supabase-url>
+SUPABASE_ANON_KEY=<your-service-role-key>
 ```
 
 ### Frontend (`frontend/.env.local`)
@@ -69,6 +93,8 @@ LIVEKIT_API_KEY=<key>
 LIVEKIT_API_SECRET=<secret>
 LIVEKIT_URL=wss://<project>.livekit.cloud
 NEXT_PUBLIC_LIVEKIT_URL=wss://<project>.livekit.cloud
+SUPABASE_URL=<your-supabase-url>
+SUPABASE_ANON_KEY=<your-anon-key>
 AGENT_NAME=<optional>
 ```
 
@@ -93,15 +119,19 @@ pnpm format                       # Prettier format
 pnpm format:check                 # Check formatting
 ```
 
-## Agent Conversation Flow
+## Session Lifecycle
 
-1. RTC session established → `entrypoint()` called
-2. Agent connects to LiveKit room (`ctx.connect()`)
-3. `AgentSession` created with OpenAI Realtime model + noise cancellation
-4. Session starts with `VoiceAgent` instance
-5. Initial greeting generated ("Greet the user...")
-6. User speaks → audio processed through BVC noise cancellation → speech-to-speech model responds
-7. Agent can call `save_note`/`get_notes` tools when user requests
+1. User authenticates via magic link → lands on home screen
+2. User clicks "Start a Session" → LiveKit room created with `reflect_{user_id}_{timestamp}` name
+3. Agent `entrypoint()` called → extracts user_id from room name
+4. Agent fetches recent sessions from Supabase for context
+5. System prompt built with session history + timing instructions
+6. Agent opens with a grounding question (energy, mood, body)
+7. 10-minute session with phases: grounding (0-2min), exploration (2-7min), wrap-up (7-9min), close (9-10min)
+8. Session ends (user clicks End, disconnects, or 10min auto-close)
+9. Agent extracts structured record via GPT-4o-mini chat completion
+10. Record saved to Supabase `sessions` table
+11. Frontend polls for new session, displays in session list
 
 ## CI/CD
 
@@ -114,3 +144,4 @@ GitHub Actions workflow (`frontend/.github/workflows/build-and-test.yaml`):
 
 - Started with STT-LLM-TTS pipeline (AssemblyAI + GPT-4.1-mini + Cartesia)
 - Switched to speech-to-speech using OpenAI Realtime API for lower latency
+- Transformed into Reflect journaling companion with Supabase auth + session persistence

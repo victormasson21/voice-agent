@@ -1,12 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useSessionContext } from '@livekit/components-react';
 import type { AppConfig } from '@/app-config';
 import { SessionView } from '@/components/app/session-view';
 import { WelcomeView } from '@/components/app/welcome-view';
 
-const MotionWelcomeView = motion.create(WelcomeView);
 const MotionSessionView = motion.create(SessionView);
 
 const VIEW_MOTION_PROPS = {
@@ -29,25 +29,36 @@ const VIEW_MOTION_PROPS = {
 
 interface ViewControllerProps {
   appConfig: AppConfig;
+  userId: string;
 }
 
-export function ViewController({ appConfig }: ViewControllerProps) {
+export function ViewController({ appConfig, userId }: ViewControllerProps) {
   const { isConnected, start } = useSessionContext();
+  const [sessionEndedAt, setSessionEndedAt] = useState<number | null>(null);
+
+  function handleSessionEnd() {
+    setSessionEndedAt(Date.now());
+  }
 
   return (
     <AnimatePresence mode="wait">
-      {/* Welcome view */}
       {!isConnected && (
-        <MotionWelcomeView
-          key="welcome"
-          {...VIEW_MOTION_PROPS}
-          startButtonText={appConfig.startButtonText}
-          onStartCall={start}
-        />
+        <motion.div key="welcome" {...VIEW_MOTION_PROPS}>
+          <WelcomeView
+            startButtonText={appConfig.startButtonText}
+            onStartCall={start}
+            userId={userId}
+            sessionEndedAt={sessionEndedAt}
+          />
+        </motion.div>
       )}
-      {/* Session view */}
       {isConnected && (
-        <MotionSessionView key="session-view" {...VIEW_MOTION_PROPS} appConfig={appConfig} />
+        <MotionSessionView
+          key="session-view"
+          {...VIEW_MOTION_PROPS}
+          appConfig={appConfig}
+          onSessionEnd={handleSessionEnd}
+        />
       )}
     </AnimatePresence>
   );

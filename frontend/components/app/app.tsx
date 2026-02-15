@@ -24,9 +24,10 @@ function AppSetup() {
 
 interface AppProps {
   appConfig: AppConfig;
+  userId: string;
 }
 
-export function App({ appConfig }: AppProps) {
+export function App({ appConfig, userId }: AppProps) {
   const tokenSource = useMemo(() => {
     return typeof process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT === 'string'
       ? getSandboxTokenSource(appConfig)
@@ -42,7 +43,7 @@ export function App({ appConfig }: AppProps) {
     <AgentSessionProvider session={session}>
       <AppSetup />
       <main className="grid h-svh grid-cols-1 place-content-center">
-        <ViewController appConfig={appConfig} />
+        <ViewController appConfig={appConfig} userId={userId} />
       </main>
       <StartAudioButton label="Start Audio" />
       <Toaster

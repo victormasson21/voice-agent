@@ -1,0 +1,14 @@
+services:
+  agent:
+    build: ./agent
+    env_file: .env
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    env_file: .env
+    restart: unless-stopped
+    depends_on:
+      - agent

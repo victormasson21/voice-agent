@@ -1,65 +1,206 @@
-import { Button } from '@/components/ui/button';
+'use client';
 
-function WelcomeImage() {
-  return (
-    <svg
-      width="64"
-      height="64"
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="text-fg0 mb-4 size-16"
-    >
-      <path
-        d="M15 24V40C15 40.7957 14.6839 41.5587 14.1213 42.1213C13.5587 42.6839 12.7956 43 12 43C11.2044 43 10.4413 42.6839 9.87868 42.1213C9.31607 41.5587 9 40.7957 9 40V24C9 23.2044 9.31607 22.4413 9.87868 21.8787C10.4413 21.3161 11.2044 21 12 21C12.7956 21 13.5587 21.3161 14.1213 21.8787C14.6839 22.4413 15 23.2044 15 24ZM22 5C21.2044 5 20.4413 5.31607 19.8787 5.87868C19.3161 6.44129 19 7.20435 19 8V56C19 56.7957 19.3161 57.5587 19.8787 58.1213C20.4413 58.6839 21.2044 59 22 59C22.7956 59 23.5587 58.6839 24.1213 58.1213C24.6839 57.5587 25 56.7957 25 56V8C25 7.20435 24.6839 6.44129 24.1213 5.87868C23.5587 5.31607 22.7956 5 22 5ZM32 13C31.2044 13 30.4413 13.3161 29.8787 13.8787C29.3161 14.4413 29 15.2044 29 16V48C29 48.7957 29.3161 49.5587 29.8787 50.1213C30.4413 50.6839 31.2044 51 32 51C32.7956 51 33.5587 50.6839 34.1213 50.1213C34.6839 49.5587 35 48.7957 35 48V16C35 15.2044 34.6839 14.4413 34.1213 13.8787C33.5587 13.3161 32.7956 13 32 13ZM42 21C41.2043 21 40.4413 21.3161 39.8787 21.8787C39.3161 22.4413 39 23.2044 39 24V40C39 40.7957 39.3161 41.5587 39.8787 42.1213C40.4413 42.6839 41.2043 43 42 43C42.7957 43 43.5587 42.6839 44.1213 42.1213C44.6839 41.5587 45 40.7957 45 40V24C45 23.2044 44.6839 22.4413 44.1213 21.8787C43.5587 21.3161 42.7957 21 42 21ZM52 17C51.2043 17 50.4413 17.3161 49.8787 17.8787C49.3161 18.4413 49 19.2044 49 20V44C49 44.7957 49.3161 45.5587 49.8787 46.1213C50.4413 46.6839 51.2043 47 52 47C52.7957 47 53.5587 46.6839 54.1213 46.1213C54.6839 45.5587 55 44.7957 55 44V20C55 19.2044 54.6839 18.4413 54.1213 17.8787C53.5587 17.3161 52.7957 17 52 17Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
+import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/client';
+
+interface Session {
+  id: string;
+  user_id: string;
+  created_at: string;
+  duration_seconds: number;
+  mood: string;
+  tone: string;
+  topics: string[];
+  decisions: string[];
 }
 
 interface WelcomeViewProps {
   startButtonText: string;
   onStartCall: () => void;
+  userId: string;
+  sessionEndedAt: number | null;
 }
 
-export const WelcomeView = ({
-  startButtonText,
-  onStartCall,
-  ref,
-}: React.ComponentProps<'div'> & WelcomeViewProps) => {
+function formatSessionDate(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const sessionDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  if (sessionDay.getTime() === today.getTime()) return 'Today';
+  if (sessionDay.getTime() === yesterday.getTime()) return 'Yesterday';
+
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(date);
+}
+
+function formatDuration(seconds: number): string {
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 1) return '< 1 min';
+  return `${minutes} min`;
+}
+
+function SessionCard({ session, onDelete }: { session: Session; onDelete: (id: string) => void }) {
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <div ref={ref}>
-      <section className="bg-background flex flex-col items-center justify-center text-center">
-        <WelcomeImage />
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => setExpanded((prev) => !prev)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setExpanded((prev) => !prev);
+        }
+      }}
+      className="border-border hover:bg-muted/50 w-full cursor-pointer rounded-lg border p-4 text-left transition-colors"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="text-foreground flex items-center gap-2 text-sm font-medium">
+            <span>{formatSessionDate(session.created_at)}</span>
+            <span className="text-muted-foreground text-xs">
+              {formatDuration(session.duration_seconds)}
+            </span>
+          </div>
+          {session.mood && <p className="text-muted-foreground mt-1 text-sm">{session.mood}</p>}
+          {session.topics.length > 0 && (
+            <p className="text-muted-foreground mt-1 text-xs">{session.topics.join(', ')}</p>
+          )}
+        </div>
+      </div>
 
-        <p className="text-foreground max-w-prose pt-1 leading-6 font-medium">
-          Chat live with your voice AI agent
-        </p>
+      {expanded && (
+        <div className="border-border mt-3 border-t pt-3">
+          {session.tone && (
+            <p className="text-muted-foreground text-sm">
+              <span className="text-foreground font-medium">Tone:</span> {session.tone}
+            </p>
+          )}
+          {session.decisions.length > 0 && (
+            <div className="mt-2">
+              <span className="text-foreground text-sm font-medium">Decisions:</span>
+              <ul className="text-muted-foreground mt-1 list-inside list-disc text-sm">
+                {session.decisions.map((decision) => (
+                  <li key={decision}>{decision}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div className="mt-3 flex justify-end">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(session.id);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-        <Button
-          size="lg"
-          onClick={onStartCall}
-          className="mt-6 w-64 rounded-full font-mono text-xs font-bold tracking-wider uppercase"
-        >
-          {startButtonText}
+export function WelcomeView({ startButtonText, onStartCall, sessionEndedAt }: WelcomeViewProps) {
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPolling, setIsPolling] = useState(false);
+
+  const fetchSessions = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('sessions')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (data) setSessions(data as Session[]);
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  useEffect(() => {
+    if (sessionEndedAt === null) return;
+
+    setIsPolling(true);
+    fetchSessions();
+
+    const interval = setInterval(fetchSessions, 2000);
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      setIsPolling(false);
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+      setIsPolling(false);
+    };
+  }, [sessionEndedAt, fetchSessions]);
+
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  }
+
+  async function handleDelete(id: string) {
+    const supabase = createClient();
+    await supabase.from('sessions').delete().eq('id', id);
+    fetchSessions();
+  }
+
+  return (
+    <div className="flex h-svh flex-col">
+      <header className="flex items-center justify-between px-4 py-3 sm:px-6">
+        <h1 className="text-foreground text-lg font-semibold">Reflect</h1>
+        <Button variant="ghost" size="sm" onClick={handleSignOut}>
+          Sign out
         </Button>
-      </section>
+      </header>
 
-      <div className="fixed bottom-5 left-0 flex w-full items-center justify-center">
-        <p className="text-muted-foreground max-w-prose pt-1 text-xs leading-5 font-normal text-pretty md:text-sm">
-          Need help getting set up? Check out the{' '}
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://docs.livekit.io/agents/start/voice-ai/"
-            className="underline"
+      <div className="flex flex-1 flex-col items-center overflow-y-auto px-4 pb-8 sm:px-6">
+        <div className="mt-12 mb-10 flex flex-col items-center">
+          <Button
+            size="lg"
+            onClick={onStartCall}
+            className="w-64 rounded-full font-mono text-xs font-bold tracking-wider uppercase"
           >
-            Voice AI quickstart
-          </a>
-          .
-        </p>
+            {startButtonText}
+          </Button>
+        </div>
+
+        <div className="w-full max-w-lg">
+          <h2 className="text-foreground mb-4 text-sm font-medium">Past Sessions</h2>
+
+          {isPolling && (
+            <p className="text-muted-foreground mb-3 animate-pulse text-center text-xs">
+              Saving your reflection...
+            </p>
+          )}
+
+          {isLoading ? (
+            <p className="text-muted-foreground text-center text-sm">Loading...</p>
+          ) : sessions.length === 0 ? (
+            <p className="text-muted-foreground text-center text-sm">
+              Your reflection history will appear here after your first session.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {sessions.map((session) => (
+                <SessionCard key={session.id} session={session} onDelete={handleDelete} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
-};
+}

@@ -22,20 +22,20 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'LiveKit',
-  pageTitle: 'LiveKit Voice Agent',
-  pageDescription: 'A voice agent built with LiveKit',
+  companyName: 'Reflect',
+  pageTitle: 'Reflect',
+  pageDescription: 'A voice companion for self-reflection',
 
-  supportsChatInput: true,
-  supportsVideoInput: true,
-  supportsScreenShare: true,
-  isPreConnectBufferEnabled: true,
+  supportsChatInput: false,
+  supportsVideoInput: false,
+  supportsScreenShare: false,
+  isPreConnectBufferEnabled: false,
 
   logo: '/lk-logo.svg',
-  accent: '#002cf2',
+  accent: '#6d28d9',
   logoDark: '/lk-logo-dark.svg',
-  accentDark: '#1fd5f9',
-  startButtonText: 'Start call',
+  accentDark: '#a78bfa',
+  startButtonText: 'Start a session',
 
   // agent dispatch configuration
   agentName: process.env.AGENT_NAME ?? undefined,
