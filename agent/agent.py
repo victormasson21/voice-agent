@@ -1,5 +1,7 @@
 import asyncio
+import logging
 import time
+from pathlib import Path
 
 from dotenv import load_dotenv
 from livekit import agents
@@ -11,7 +13,13 @@ from prompts import build_system_prompt
 from session_store import get_recent_sessions, save_session
 from extractor import extract_session_record
 
-load_dotenv(".env.local")
+_env_file = Path(__file__).resolve().parent.parent / "frontend" / ".env.local"
+load_dotenv(_env_file)
+
+# Suppress noisy HTTP/2 header encoding logs
+logging.getLogger("hpack").setLevel(logging.WARNING)
+
+logger = logging.getLogger("reflect")
 
 SESSION_MAX_DURATION = 600  # 10 minutes
 
@@ -93,14 +101,28 @@ async def entrypoint(ctx: agents.JobContext):
         ),
     )
 
-    await session.generate_reply(
-        instructions=(
-            "Start the session with a single grounding question. "
-            "Ask how the user is arriving right now — their energy, "
-            "their mood, what they're noticing in their body. "
-            "Keep it brief and warm. Don't ask about events yet."
-        )
+    greeting_instructions = (
+        "Start the session with a single grounding question. "
+        "Ask how the user is arriving right now — their energy, "
+        "their mood, what they're noticing in their body. "
+        "Keep it brief and warm. Don't ask about events yet."
     )
+
+    # The SDK has a hardcoded 5s timeout on generate_reply which can be too
+    # tight for the first turn (WebSocket init + large prompt + generation).
+    # Retry up to 3 times to handle transient slowness.
+    for attempt in range(3):
+        try:
+            await session.generate_reply(instructions=greeting_instructions)
+            break
+        except Exception as e:
+            logger.warning(
+                "generate_reply attempt %d failed: %s", attempt + 1, e
+            )
+            if attempt == 2:
+                logger.error("All generate_reply attempts failed, session may lack greeting")
+            else:
+                await asyncio.sleep(1)
 
     # Auto-close after 10 minutes
     async def auto_close():
