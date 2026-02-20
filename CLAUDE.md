@@ -75,27 +75,26 @@ RLS: users can read/delete own sessions. Agent writes via service role key.
 
 ## Environment Variables
 
-### Agent (`agent/.env.local`)
+Both the frontend and agent read from `frontend/.env.local` in development. The agent loads it via `load_dotenv(".env.local")` (relative to CWD).
+
+### `frontend/.env.local`
 
 ```
+# LiveKit
 LIVEKIT_API_KEY=<key>
 LIVEKIT_API_SECRET=<secret>
 LIVEKIT_URL=wss://<project>.livekit.cloud
+
+# OpenAI (used by agent for realtime voice + post-session extraction)
 OPENAI_API_KEY=<key>
-SUPABASE_URL=<your-supabase-url>
-SUPABASE_ANON_KEY=<your-service-role-key>
-```
 
-### Frontend (`frontend/.env.local`)
-
-```
-LIVEKIT_API_KEY=<key>
-LIVEKIT_API_SECRET=<secret>
-LIVEKIT_URL=wss://<project>.livekit.cloud
-NEXT_PUBLIC_LIVEKIT_URL=wss://<project>.livekit.cloud
+# Supabase — server-side (middleware, API routes, Python agent)
 SUPABASE_URL=<your-supabase-url>
 SUPABASE_ANON_KEY=<your-anon-key>
-AGENT_NAME=<optional>
+
+# Supabase — client-side (same values, NEXT_PUBLIC_ prefix required by Next.js)
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
 ## Development Commands
