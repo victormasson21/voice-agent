@@ -23,5 +23,7 @@ spec:
           image: victormasson21/voice-agent:latest
           # Load all environment variables from the Kubernetes secret
           envFrom:
-            - secretRef:
-                name: voice-agent-secrets
+              - secretRef:
+                  name: voice-agent-shared-secrets
+              - secretRef:
+                  name: voice-agent-backend-secrets

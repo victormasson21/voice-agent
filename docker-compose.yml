@@ -1,14 +1,14 @@
 services:
   agent:
     build: ./agent
-    env_file: frontend/.env.local
-    restart: unless-stopped
+    image: victormasson21/voice-agent:latest
 
   frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    env_file: frontend/.env.local
-    restart: unless-stopped
-    depends_on:
-      - agent
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        SUPABASE_URL: ${SUPABASE_URL}
+        SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+    image: victormasson21/voice-frontend:latest

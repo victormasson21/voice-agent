@@ -27,5 +27,7 @@ spec:
           # Load all environment variables from the Kubernetes secret
           envFrom:
             - secretRef:
-                name: voice-agent-secrets
+                name: voice-agent-shared-secrets
+            - secretRef:
+                name: voice-agent-frontend-secrets
 
