@@ -69,8 +69,10 @@ async def entrypoint(ctx: agents.JobContext):
             model="gpt-realtime-mini",
             temperature=0.7,
             turn_detection=TurnDetection(
-                type="server_vad",
-                silence_duration_ms=800,
+                type="semantic_vad",
+                eagerness="low",
+                create_response=True,
+                interrupt_response=True,
             ),
         ),
     )
@@ -96,6 +98,15 @@ async def entrypoint(ctx: agents.JobContext):
             ),
         ),
     )
+
+    # Signal frontend that agent is ready and about to speak
+    try:
+        await ctx.room.local_participant.publish_data(
+            json.dumps({"type": "status", "status": "ready"}),
+            topic="agent_status",
+        )
+    except Exception as e:
+        logger.warning("Failed to publish ready status: %s", e)
 
     # Agent speaks opening line in character
     for attempt in range(3):
