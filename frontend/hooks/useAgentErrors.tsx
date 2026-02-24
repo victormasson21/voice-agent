@@ -3,6 +3,7 @@ import { toast as sonnerToast } from 'sonner';
 import { useAgent, useSessionContext } from '@livekit/components-react';
 import { WarningIcon } from '@phosphor-icons/react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useSessionEndedIntentionally } from '@/hooks/useSessionEndedIntentionally';
 
 interface ToastProps {
   title: ReactNode;
@@ -27,9 +28,14 @@ function toastAlert(toast: ToastProps) {
 export function useAgentErrors() {
   const agent = useAgent();
   const { isConnected, end } = useSessionContext();
+  const { intentional } = useSessionEndedIntentionally();
 
   useEffect(() => {
     if (isConnected && agent.state === 'failed') {
+      // Don't show error when the session was ended intentionally
+      // (user clicked end call, agent called end_call, or auto-close)
+      if (intentional) return;
+
       const reasons = agent.failureReasons;
 
       toastAlert({
@@ -61,5 +67,5 @@ export function useAgentErrors() {
 
       end();
     }
-  }, [agent, isConnected, end]);
+  }, [agent, isConnected, end, intentional]);
 }

@@ -8,6 +8,7 @@ import type { AppConfig } from '@/app-config';
 import { type Scorecard, ScorecardView } from '@/components/app/scorecard-view';
 import { SessionView } from '@/components/app/session-view';
 import { WelcomeView } from '@/components/app/welcome-view';
+import { useSessionEndedIntentionally } from '@/hooks/useSessionEndedIntentionally';
 
 const MotionSessionView = motion.create(SessionView);
 
@@ -37,6 +38,7 @@ export function ViewController({ appConfig }: ViewControllerProps) {
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [connecting, setConnecting] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { markIntentional, reset: resetIntentional } = useSessionEndedIntentionally();
 
   // Listen for scorecard data messages from the agent
   useEffect(() => {
@@ -54,6 +56,9 @@ export function ViewController({ appConfig }: ViewControllerProps) {
         const msg = JSON.parse(new TextDecoder().decode(payload));
 
         if (msg.type === 'status' && msg.status === 'evaluating') {
+          // Agent initiated end_call — mark as intentional so we don't
+          // show an "agent left unexpectedly" error when it disconnects
+          markIntentional();
           return;
         }
 
@@ -71,7 +76,7 @@ export function ViewController({ appConfig }: ViewControllerProps) {
     return () => {
       room.off(RoomEvent.DataReceived, handleData);
     };
-  }, [room]);
+  }, [room, markIntentional]);
 
   // Handle room disconnect during evaluation (timeout/error)
   useEffect(() => {
@@ -82,6 +87,8 @@ export function ViewController({ appConfig }: ViewControllerProps) {
   }, [isConnected, viewState, scorecard]);
 
   const handleSessionEnd = useCallback(() => {
+    markIntentional();
+
     // Timeout: if no scorecard after 60s, return to welcome
     timeoutRef.current = setTimeout(() => {
       if (!scorecard) {
@@ -89,7 +96,7 @@ export function ViewController({ appConfig }: ViewControllerProps) {
         end();
       }
     }, EVALUATION_TIMEOUT_MS);
-  }, [scorecard, end]);
+  }, [scorecard, end, markIntentional]);
 
   const handleScorecardDone = useCallback(() => {
     setScorecard(null);
@@ -101,13 +108,14 @@ export function ViewController({ appConfig }: ViewControllerProps) {
   const handleStart = useCallback(async () => {
     setConnecting(true);
     setScorecard(null);
+    resetIntentional();
     try {
       await start();
       setViewState('session');
     } finally {
       setConnecting(false);
     }
-  }, [start]);
+  }, [start, resetIntentional]);
 
   return (
     <AnimatePresence mode="wait">
