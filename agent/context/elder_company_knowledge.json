@@ -1,0 +1,120 @@
+{
+  "elder_company_knowledge": {
+    "description": "Structured company knowledge derived from Elder's live-in care brochure. Split into two sections: what the customer would plausibly know (for the RoleplayAgent) and the full knowledge base the trainee should demonstrate (for the EvaluatorAgent).",
+
+    "customer_awareness": {
+      "purpose": "Inject into the RoleplayAgent's context. This is what someone would pick up from browsing the Elder website for 5-10 minutes before registering interest.",
+      "what_they_likely_know": [
+        "Elder provides live-in care — a carer moves into the home.",
+        "It's positioned as an alternative to a care home.",
+        "The website says it's 35% cheaper than traditional alternatives.",
+        "Pricing starts from £1,150 per week.",
+        "Elder is an introductory agency, not a fully managed provider — though they may not fully understand the distinction.",
+        "You can view carer profiles and choose your own carer.",
+        "There's an app or platform called MyElder.",
+        "The company was founded by someone whose gran needed care.",
+        "Only 2% of carer applicants are accepted."
+      ],
+      "what_they_probably_dont_know": [
+        "The difference between an introductory agency and a fully managed provider in practice.",
+        "How funding works (local authority, NHS Continuing Healthcare, direct payments).",
+        "That the family's home isn't counted in financial assessments if the person still lives there.",
+        "How respite cover works when the carer needs time off.",
+        "The clinical team and family support specialist roles.",
+        "Night-time support limits (typically up to twice per night, 15 min each).",
+        "That carers work 8-12 hours per day, not literally 24 hours continuously.",
+        "CQC regulation status and safeguarding details."
+      ],
+      "realistic_customer_questions": [
+        "So is £1,150 the total cost or are there extras?",
+        "What happens if we don't get on with the carer?",
+        "Can you get someone who speaks [language]?",
+        "What's the difference between you and a care home exactly?",
+        "How quickly can you get someone in?",
+        "Do they do nights as well?",
+        "Is there any way to get funding help?",
+        "What if mum needs more help than one person can give?",
+        "Are your carers actually qualified or just anyone?",
+        "What happens when the carer needs a day off?"
+      ]
+    },
+
+    "trainee_knowledge_base": {
+      "purpose": "Inject into the EvaluatorAgent's context. This is what a competent trainee should be able to draw on during the call. The evaluator uses this to assess the Knowledge & Credibility criterion.",
+
+      "core_proposition": {
+        "what_elder_is": "An introductory agency connecting families with self-employed live-in carers. Not a fully managed provider — the care agreement is between the family and the carer directly.",
+        "key_differentiators": [
+          "35% cheaper on average than managed services because carers are self-employed.",
+          "Family chooses their own carer from personalised matches.",
+          "ElderMatch technology considers 25+ skill and personality factors.",
+          "Only 2% of carer applicants accepted after screening (background check, character assessment, references, documentation).",
+          "90% of customers find their ideal carer first time.",
+          "MyElder platform for managing care, communicating with carer and Elder team.",
+          "Families stay in control — care decisions sit with them, not a care company."
+        ],
+        "founder_story": "Founded by Pete, inspired by his struggle to find the right care for his gran, Frances."
+      },
+
+      "pricing_and_funding": {
+        "base_price": "From £1,150 per week (£165 per day).",
+        "no_hidden_costs": "No hidden costs or upfront fees.",
+        "carer_food": "Budget approximately £40 per week for carer's food, can be included in weekly payments.",
+        "funding_options": [
+          "Local authority care needs assessment — may determine eligibility for financial support.",
+          "Direct payments — funds paid to the person's bank account, giving them control.",
+          "NHS Continuing Healthcare — full funding for those with intensive health and care needs (e.g. palliative care).",
+          "Benevolent funds and charities.",
+          "The family home is NOT counted in financial assessments if the person receiving care still lives there."
+        ]
+      },
+
+      "care_types": {
+        "standard_live_in": "One carer in the home, working 8-12 hours per day, with night-time support up to twice per night (approximately 15 min each).",
+        "24_hour_care": "Two carers for those with advanced needs, ensuring active care around the clock.",
+        "palliative_care": "For life-limiting conditions. Focused on comfort, dignity, and maximising quality of remaining time at home.",
+        "convalescent_care": "Short-term care for post-surgery or hospital recovery.",
+        "emergency_care": "Placement often within 24 hours, sometimes same day.",
+        "respite_care": "Substitute carer steps in to give the primary carer a break.",
+        "overnight_care": "Carer sleeps at the property during the day and provides night-time support.",
+        "dementia_care": "Familiar surroundings reduce confusion and distress. Carers provide tailored routines."
+      },
+
+      "carer_details": {
+        "employment_status": "Self-employed — the agreement is between family and carer.",
+        "screening": "Background check, character assessment, professional references, documentation verification.",
+        "acceptance_rate": "Only 2% of applicants.",
+        "language": "All carers must have good written and spoken English. Other language preferences can be accommodated.",
+        "gender_preference": "Families can request a male or female carer.",
+        "replacement": "If the match isn't right, Elder offers a replacement at no extra cost, usually within 24 hours.",
+        "respite_process": "When a carer needs time off, Elder arranges a self-employed respite carer. Families can also make private arrangements or have a family member step in."
+      },
+
+      "practical_requirements": {
+        "carer_needs_in_home": [
+          "A private bedroom (doesn't need to be en-suite).",
+          "Access to bathroom, kitchen, and living areas.",
+          "Wi-Fi access."
+        ],
+        "meals": "Carers usually prepare and share meals with the person. Budget ~£40/week for their food.",
+        "working_hours": "8-12 hours per day. Not continuously active for 24 hours.",
+        "night_support_limits": "Up to twice per night, ~15 min each. More frequent needs may require waking night care."
+      },
+
+      "process": {
+        "step_1": "Family shares care requirements via the request form (type of care, specialist skills, daily life details). Takes less than 10 minutes.",
+        "step_2": "ElderMatch presents suitable carer profiles, typically within 24 hours. Profiles include experience, background, family feedback, and introductory video. Family can chat online, or arrange phone/video call.",
+        "step_3": "Family accepts preferred carer. Uses MyElder to manage schedule, communicate, and arrange respite if needed."
+      },
+
+      "common_objections_and_responses": {
+        "too_expensive": "At £1,150/week, Elder is 35% cheaper than managed alternatives. Funding options exist. The home isn't counted in financial assessments.",
+        "stranger_in_the_house": "Family chooses their carer after viewing profiles and having a call. 90% find the right match first time. Replacement at no cost if not.",
+        "care_home_might_be_better": "Live-in care is linked to fewer falls and hospital admissions. Person keeps their GP, routines, social life, and pets. Especially beneficial for dementia.",
+        "what_if_needs_increase": "Can move to 24-hour care (two carers). Palliative and specialist care available. Clinical team on hand.",
+        "how_quickly": "Often within 24 hours. Same-day in urgent cases.",
+        "is_it_regulated": "Elder carers pass suitability screening including background checks, character assessment, and professional references."
+      }
+    }
+  }
+}

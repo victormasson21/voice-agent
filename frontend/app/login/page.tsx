@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
@@ -33,12 +34,20 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="flex min-h-svh items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-8 text-center">
+    <div className="flex min-h-svh flex-col justify-center px-6 sm:px-10 lg:px-20">
+      <div className="w-full max-w-sm space-y-8">
         <div>
-          <h1 className="text-foreground text-3xl font-semibold tracking-tight">Reflect</h1>
+          <Image
+            src="/elder-logo.png"
+            alt="Elder"
+            width={120}
+            height={32}
+            priority
+            className="mb-6"
+          />
+          <h1 className="text-foreground text-3xl font-semibold tracking-tight">Sales Trainer</h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            A voice companion for self-reflection
+            Practice sales conversations with simulated customers
           </p>
         </div>
 
@@ -57,7 +66,7 @@ export default function LoginPage() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring h-10 w-full rounded-md border px-3 text-sm outline-none focus-visible:ring-2"
+              className="border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-ring h-10 w-full rounded-md border bg-white px-3 text-sm outline-none focus-visible:ring-2"
             />
             <Button
               type="submit"

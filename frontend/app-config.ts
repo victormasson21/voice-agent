@@ -22,20 +22,20 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Reflect',
-  pageTitle: 'Reflect',
-  pageDescription: 'A voice companion for self-reflection',
+  companyName: 'Elder',
+  pageTitle: 'Elder Sales Trainer',
+  pageDescription: 'Practice sales conversations with simulated customers',
 
   supportsChatInput: false,
   supportsVideoInput: false,
   supportsScreenShare: false,
   isPreConnectBufferEnabled: false,
 
-  logo: '/lk-logo.svg',
-  accent: '#6d28d9',
-  logoDark: '/lk-logo-dark.svg',
-  accentDark: '#a78bfa',
-  startButtonText: 'Start a session',
+  logo: '/elder-logo.png',
+  accent: '#4A6FA5',
+  logoDark: '/elder-logo.png',
+  accentDark: '#7B9FD4',
+  startButtonText: 'Start training',
 
   // agent dispatch configuration
   agentName: process.env.AGENT_NAME ?? undefined,

@@ -1,35 +1,34 @@
 import asyncio
+import json
 import logging
-import time
+import random
 from pathlib import Path
 
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import AgentServer, AgentSession, Agent, room_io
+from livekit.agents.llm import function_tool
 from livekit.plugins import openai, noise_cancellation
 from livekit.plugins.openai.realtime.realtime_model import TurnDetection
 
-from prompts import build_system_prompt
-from session_store import get_recent_sessions, save_session
-from extractor import extract_session_record
+from prompts import build_roleplay_prompt, load_personas, load_care_recipients, load_company_knowledge
+from evaluator import evaluate_session
 
 _env_file = Path(__file__).resolve().parent.parent / "frontend" / ".env.local"
 load_dotenv(_env_file)
 
-# Suppress noisy HTTP/2 header encoding logs
 logging.getLogger("hpack").setLevel(logging.WARNING)
 
-logger = logging.getLogger("reflect")
+logger = logging.getLogger("sales-trainer")
 
 SESSION_MAX_DURATION = 600  # 10 minutes
 
 server = AgentServer()
 
-
-def _extract_user_id(room_name: str) -> str:
-    """Extract user_id from room name format: reflect_{user_id}_{timestamp}."""
-    parts = room_name.split("_")
-    return "_".join(parts[1:-1])
+# Load context data once at startup
+PERSONAS = load_personas()
+CARE_RECIPIENTS = load_care_recipients()
+COMPANY_KNOWLEDGE = load_company_knowledge()
 
 
 def _build_conversation_history(session: AgentSession) -> list[dict]:
@@ -44,34 +43,25 @@ def _build_conversation_history(session: AgentSession) -> list[dict]:
     return history
 
 
-async def _handle_session_end(
-    user_id: str,
-    session_start_time: float,
-    session: AgentSession,
-) -> None:
-    """Extract session record and save to database."""
-    duration_seconds = int(time.time() - session_start_time)
-    conversation_history = _build_conversation_history(session)
-
-    if not conversation_history:
-        return
-
-    record = await extract_session_record(conversation_history)
-    save_session(user_id, duration_seconds, record)
-    print(f"Session saved for user {user_id}: {record['mood']}")
-
-
 @server.rtc_session()
 async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
 
-    user_id = _extract_user_id(ctx.room.name)
-    recent_sessions = get_recent_sessions(user_id)
+    # Pick random persona and care recipient
+    persona = random.choice(PERSONAS)
+    care_recipient = random.choice(CARE_RECIPIENTS)
+    opening_line = random.choice(persona["opening_lines"])
 
-    session_start_time = time.time()
-    instructions = build_system_prompt(recent_sessions, session_start_time)
+    instructions = build_roleplay_prompt(persona, care_recipient, COMPANY_KNOWLEDGE)
 
-    agent = Agent(instructions=instructions)
+    # Define end_call tool — the agent calls this when the conversation ends naturally
+    @function_tool(name="end_call")
+    async def end_call() -> None:
+        """End the call. Use this when the conversation reaches a natural conclusion,
+        the customer says goodbye, or you sense the trainee is wrapping up."""
+        await session.aclose()
+
+    agent = Agent(instructions=instructions, tools=[end_call])
 
     session = AgentSession(
         llm=openai.realtime.RealtimeModel(
@@ -79,16 +69,24 @@ async def entrypoint(ctx: agents.JobContext):
             model="gpt-realtime-mini",
             temperature=0.7,
             turn_detection=TurnDetection(
-                type="server_vad",
-                silence_duration_ms=800,
+                type="semantic_vad",
+                eagerness="low",
+                create_response=True,
+                interrupt_response=True,
             ),
         ),
     )
 
+    # Listen for end_call data message from frontend
+    @ctx.room.on("data_received")
+    def on_data_received(data_packet):
+        if data_packet.topic == "end_call":
+            asyncio.create_task(session.aclose())
+
     @session.on("close")
     def on_session_close(_event):
         asyncio.create_task(
-            _handle_session_end(user_id, session_start_time, session)
+            _handle_evaluation(ctx, session)
         )
 
     await session.start(
@@ -101,43 +99,79 @@ async def entrypoint(ctx: agents.JobContext):
         ),
     )
 
-    greeting_instructions = (
-        "Start the session with a single grounding question. "
-        "Ask how the user is arriving right now — their energy, "
-        "their mood, what they're noticing in their body. "
-        "Keep it brief and warm. Don't ask about events yet."
-    )
+    # Signal frontend that agent is ready and about to speak
+    try:
+        await ctx.room.local_participant.publish_data(
+            json.dumps({"type": "status", "status": "ready"}),
+            topic="agent_status",
+        )
+    except Exception as e:
+        logger.warning("Failed to publish ready status: %s", e)
 
-    # The SDK has a hardcoded 5s timeout on generate_reply which can be too
-    # tight for the first turn (WebSocket init + large prompt + generation).
-    # Retry up to 3 times to handle transient slowness.
+    # Agent speaks opening line in character
     for attempt in range(3):
         try:
-            await session.generate_reply(instructions=greeting_instructions)
+            await session.generate_reply(
+                instructions=f'Start the call with this exact opening line: "{opening_line}"'
+            )
             break
         except Exception as e:
-            logger.warning(
-                "generate_reply attempt %d failed: %s", attempt + 1, e
-            )
+            logger.warning("generate_reply attempt %d failed: %s", attempt + 1, e)
             if attempt == 2:
-                logger.error("All generate_reply attempts failed, session may lack greeting")
+                logger.error("All generate_reply attempts failed")
             else:
                 await asyncio.sleep(1)
 
     # Auto-close after 10 minutes
     async def auto_close():
         await asyncio.sleep(SESSION_MAX_DURATION)
-        await session.generate_reply(
-            instructions=(
-                "The session has reached 10 minutes. Wrap up now with "
-                "a brief, warm goodbye. Offer a one-sentence synthesis "
-                "of what you noticed during the session, then end cleanly."
+        try:
+            await session.generate_reply(
+                instructions=(
+                    "The call has been going on for a while. Wrap up naturally — "
+                    "thank the trainee and say goodbye, then use the end_call tool."
+                )
             )
-        )
+        except Exception:
+            pass
         await asyncio.sleep(15)
-        ctx.shutdown()
+        await session.aclose()
 
     asyncio.create_task(auto_close())
+
+
+async def _handle_evaluation(ctx: agents.JobContext, session: AgentSession) -> None:
+    """Run post-session evaluation and publish scorecard to room."""
+    conversation_history = _build_conversation_history(session)
+
+    if not conversation_history:
+        ctx.shutdown()
+        return
+
+    # Signal frontend that evaluation is in progress
+    try:
+        await ctx.room.local_participant.publish_data(
+            json.dumps({"type": "status", "status": "evaluating"}),
+            topic="scorecard",
+        )
+    except Exception as e:
+        logger.warning("Failed to publish evaluating status: %s", e)
+
+    scorecard = await evaluate_session(conversation_history, COMPANY_KNOWLEDGE)
+
+    # Publish scorecard to frontend
+    try:
+        await ctx.room.local_participant.publish_data(
+            json.dumps({"type": "scorecard", "data": scorecard}),
+            topic="scorecard",
+        )
+    except Exception as e:
+        logger.error("Failed to publish scorecard: %s", e)
+
+    logger.info("Scorecard published: %s (%d/40)", scorecard.get("overall_level"), scorecard.get("overall_score", 0))
+
+    await asyncio.sleep(2)
+    ctx.shutdown()
 
 
 if __name__ == "__main__":

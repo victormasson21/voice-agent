@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/victormasson/Repos/livekit-voice-agent diff HEAD)",
+      "Bash(git -C /Users/victormasson/Repos/livekit-voice-agent log --oneline -20)",
+      "Bash(python3 -c \"from livekit.agents import Agent; import inspect; print\\(inspect.signature\\(Agent.__init__\\)\\)\")",
+      "Bash(python3:*)",
+      "Bash(uv run python -c \"from livekit.agents import AgentSession; import inspect; print\\(inspect.getfile\\(AgentSession\\)\\)\")",
+      "Bash(uv run python -c \"from livekit.agents.voice.agent_activity import AgentActivity; import inspect; print\\(inspect.getfile\\(AgentActivity\\)\\)\")",
+      "Bash(uv run python -c \"from openai.types.beta.realtime.session import TurnDetection; import inspect; print\\(inspect.getsource\\(TurnDetection\\)\\)\")",
+      "Bash(pnpm build)"
+    ]
+  }
+}
