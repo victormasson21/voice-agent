@@ -1,16 +1,16 @@
-# Reflect
+# Elder Sales Trainer
 
-A voice-based journaling companion for self-reflection. Have short voice conversations with an AI companion that helps you think out loud, then get structured session records — mood, tone, topics, and decisions — without storing raw transcripts.
+A voice-based sales training tool for [Elder](https://www.elder.org). Trainees practice inbound sales calls with AI-simulated customer personas, then receive a scorecard evaluating their performance across 8 criteria.
 
 Built with [LiveKit Agents](https://docs.livekit.io/agents), OpenAI Realtime API, Next.js, and Supabase.
 
 ## How it works
 
 1. Sign in with a magic link
-2. Click **Start a Session** to begin a voice conversation (up to 10 minutes)
-3. The AI companion asks grounding questions, reflects back what you say, and follows the emotional weight of the conversation
-4. When the session ends, the agent extracts a structured record (mood, tone, topics, decisions) and saves it
-5. Past sessions appear on the home screen and inform future conversations
+2. Click **Start training** to begin a voice call with a simulated customer
+3. The agent randomly picks a customer persona (stressed daughter, researching son, etc.) and plays the role
+4. Lead the conversation as you would a real Elder inbound inquiry
+5. When the call ends, the agent evaluates your performance and displays a scorecard
 
 ## Prerequisites
 
@@ -20,41 +20,13 @@ Built with [LiveKit Agents](https://docs.livekit.io/agents), OpenAI Realtime API
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
 - A [LiveKit Cloud](https://cloud.livekit.io) project (or self-hosted LiveKit server)
 - An [OpenAI](https://platform.openai.com) API key
-- A [Supabase](https://supabase.com) project
+- A [Supabase](https://supabase.com) project (for auth only — no database tables needed)
 
 ## Setup
 
 ### 1. Supabase
 
-Create a project at [supabase.com](https://supabase.com), then:
-
-**Run the schema migration** in the SQL Editor:
-
-```sql
-create table sessions (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users(id) on delete cascade not null,
-  created_at timestamptz default now() not null,
-  duration_seconds int not null,
-  mood text not null,
-  tone text not null,
-  topics text[] not null default '{}',
-  decisions text[] not null default '{}'
-);
-
-alter table sessions enable row level security;
-
-create policy "Users can read own sessions"
-  on sessions for select using (auth.uid() = user_id);
-
-create policy "Users can insert own sessions"
-  on sessions for insert with check (auth.uid() = user_id);
-
-create policy "Users can delete own sessions"
-  on sessions for delete using (auth.uid() = user_id);
-
-create index idx_sessions_user_id_created on sessions (user_id, created_at desc);
-```
+Create a project at [supabase.com](https://supabase.com). No database migration needed — auth only.
 
 **Configure auth:**
 
@@ -65,7 +37,7 @@ create index idx_sessions_user_id_created on sessions (user_id, created_at desc)
 
 ### 2. Environment variables
 
-**Agent** — create `agent/.env.local`:
+Create `frontend/.env.local` (the agent reads from the same file):
 
 ```
 LIVEKIT_API_KEY=<your-livekit-api-key>
@@ -73,18 +45,9 @@ LIVEKIT_API_SECRET=<your-livekit-api-secret>
 LIVEKIT_URL=wss://<your-project>.livekit.cloud
 OPENAI_API_KEY=<your-openai-api-key>
 SUPABASE_URL=<your-supabase-url>
-SUPABASE_ANON_KEY=<your-supabase-service-role-key>
-```
-
-**Frontend** — create `frontend/.env.local`:
-
-```
-LIVEKIT_API_KEY=<your-livekit-api-key>
-LIVEKIT_API_SECRET=<your-livekit-api-secret>
-LIVEKIT_URL=wss://<your-project>.livekit.cloud
-NEXT_PUBLIC_LIVEKIT_URL=wss://<your-project>.livekit.cloud
-SUPABASE_URL=<your-supabase-url>
 SUPABASE_ANON_KEY=<your-supabase-anon-key>
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
 ```
 
 ### 3. Install and run
@@ -105,53 +68,69 @@ pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), sign in with your email, and start a session.
+Open [http://localhost:3000](http://localhost:3000), sign in, and start training.
 
 ## Project structure
 
 ```
 livekit-voice-agent/
 ├── agent/
-│   ├── agent.py             # Session lifecycle, auto-close timer
-│   ├── prompts.py           # System prompt with session context
-│   ├── session_store.py     # Supabase read/write for session records
-│   ├── extractor.py         # Post-session structured record extraction
-│   └── pyproject.toml       # Python dependencies
-└── frontend/
-    ├── app/
-    │   ├── page.tsx              # Home (auth-gated)
-    │   ├── login/page.tsx        # Magic link login
-    │   ├── auth/callback/        # Auth redirect handler
-    │   └── api/connection-details/  # LiveKit token generation
-    ├── components/app/
-    │   ├── welcome-view.tsx      # Home screen: start button + session list
-    │   ├── session-view.tsx      # Active session: timer + pulsing indicator
-    │   ├── view-controller.tsx   # View routing
-    │   └── app.tsx               # Root app with LiveKit session
-    ├── lib/supabase/             # Supabase client helpers
-    ├── middleware.ts              # Auth middleware
-    └── app-config.ts             # Branding and feature flags
+│   ├── agent.py              # Entry point: persona selection, end_call tool, evaluation
+│   ├── prompts.py            # Context loaders + roleplay system prompt builder
+│   ├── evaluator.py          # Post-session rubric-based scoring (GPT-4o-mini)
+│   ├── context/
+│   │   ├── personas.json             # 8 customer personas with backstories
+│   │   ├── evaluator_rubric.json     # 8 scoring criteria (1-5 scale each)
+│   │   ├── elder_company_knowledge.json  # Customer awareness + trainee knowledge
+│   │   └── fake_care_recipient_data.json # Realistic care recipient medical data
+│   └── pyproject.toml        # Python dependencies
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx                    # Home (auth-gated)
+│   │   ├── login/page.tsx              # Magic link login
+│   │   ├── auth/callback/              # Auth redirect handler
+│   │   └── api/connection-details/     # LiveKit token generation
+│   ├── components/app/
+│   │   ├── welcome-view.tsx            # Home: start training button
+│   │   ├── session-view.tsx            # In-call UI: timer + evaluating state
+│   │   ├── scorecard-view.tsx          # Visual scorecard display
+│   │   ├── view-controller.tsx         # 3-state view routing
+│   │   └── app.tsx                     # Root app with LiveKit session
+│   ├── components/agents-ui/          # LiveKit agent UI components
+│   ├── lib/supabase/                  # Supabase client helpers
+│   ├── middleware.ts                   # Auth middleware
+│   └── app-config.ts                  # Branding config
+├── k8s/                               # Kubernetes deployment manifests
+└── CLAUDE.md                          # Full project documentation
 ```
 
 ## Session lifecycle
 
 ```
-User clicks "Start a Session"
-  → LiveKit room created (name: reflect_{user_id}_{timestamp})
-  → Agent joins, fetches recent sessions from Supabase
-  → System prompt built with session history + timing phases
-  → Agent opens with a grounding question
+User clicks "Start training"
+  → LiveKit room created (name: train_{user_id}_{timestamp})
+  → Agent joins, picks random persona + care recipient
+  → Agent speaks opening line in character
 
-0-2 min:  Grounding — energy, mood, body
-2-7 min:  Exploration — follow the emotional weight
-7-9 min:  Wrap-up — synthesis and takeaway
-9-10 min: Close — final goodbye
+Trainee leads the sales conversation (up to 10 min)
 
-Session ends (user clicks End / disconnects / 10min auto-close)
-  → Agent extracts structured record via GPT-4o-mini
-  → Record saved to Supabase
-  → Frontend polls and displays the new session
+Session ends (user clicks End Call / agent calls end_call tool / 10min auto-close)
+  → Agent publishes "evaluating" status via data channel
+  → GPT-4o-mini scores the conversation against 8 criteria
+  → Scorecard JSON published to room via data channel
+  → Frontend displays visual scorecard
 ```
+
+## Gotchas
+
+- **Single .env.local**: Both frontend and agent read from `frontend/.env.local`. The agent loads it via `dotenv` with a relative path to `../frontend/.env.local`. If you move files around, the agent won't find its env vars.
+- **Room must stay alive during evaluation**: When the user clicks "End Call", the frontend does NOT disconnect from the room. It publishes an `end_call` data message and waits for the scorecard. The agent runs evaluation (~5-10s), publishes the scorecard, then shuts down the room. If you call `session.end()` prematurely, the scorecard will never arrive.
+- **Care recipient data is large**: `fake_care_recipient_data.json` is ~700KB. The `_summarize_care_recipient()` function in `prompts.py` extracts only key fields to keep the system prompt manageable. Don't inject the full record.
+- **OpenAI Realtime + function tools**: The `end_call` function tool works with the Realtime model because the LiveKit Agents SDK handles tool invocation at the session level. The tool is defined as a closure inside `entrypoint()` so it can access the `session` variable.
+- **Data channel topic convention**: Agent-to-frontend messages use topic `scorecard`. Frontend-to-agent messages use topic `end_call`. The payload is always JSON-encoded as a string.
+- **No database persistence**: Scorecards are ephemeral — they only exist in the LiveKit data channel. If you want to persist them later, add a database write in `_handle_evaluation()`.
+- **Evaluation timeout**: The frontend has a 60s timeout waiting for the scorecard. If the OpenAI API is slow or fails, the user gets returned to the welcome screen.
+- **Auto-close**: The 10-minute auto-close still exists. The agent will try to wrap up the call naturally before closing.
 
 ## Development
 

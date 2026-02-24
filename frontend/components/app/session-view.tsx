@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useSessionContext } from '@livekit/components-react';
-import type { AppConfig } from '@/app-config';
+import { useRoomContext } from '@livekit/components-react';
 import { Button } from '@/components/ui/button';
 
 const MAX_DURATION_SECONDS = 600;
@@ -13,28 +12,37 @@ function formatTime(totalSeconds: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
+type Phase = 'active' | 'evaluating';
+
 interface SessionViewProps {
-  appConfig: AppConfig;
   onSessionEnd: () => void;
 }
 
 export const SessionView = ({
-  appConfig: _appConfig,
   onSessionEnd,
   ...props
 }: React.ComponentProps<'section'> & SessionViewProps) => {
-  const session = useSessionContext();
+  const room = useRoomContext();
   const [elapsed, setElapsed] = useState(0);
+  const [phase, setPhase] = useState<Phase>('active');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const handleEnd = useCallback(() => {
+  const handleEndCall = useCallback(() => {
+    if (phase !== 'active') return;
+
+    // Stop the timer
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+
+    // Signal the agent to end the session
+    const payload = new TextEncoder().encode(JSON.stringify({ type: 'end_call' }));
+    room.localParticipant.publishData(payload, { topic: 'end_call', reliable: true });
+
+    setPhase('evaluating');
     onSessionEnd();
-    session.end();
-  }, [onSessionEnd, session]);
+  }, [phase, room, onSessionEnd]);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -47,30 +55,39 @@ export const SessionView = ({
   }, []);
 
   useEffect(() => {
-    if (elapsed >= MAX_DURATION_SECONDS) {
-      handleEnd();
+    if (elapsed >= MAX_DURATION_SECONDS && phase === 'active') {
+      handleEndCall();
     }
-  }, [elapsed, handleEnd]);
+  }, [elapsed, phase, handleEndCall]);
 
   return (
     <section
       className="bg-background flex h-svh w-svw flex-col items-center justify-center"
       {...props}
     >
-      <div className="flex flex-col items-center gap-8">
-        <div className="bg-primary/20 size-24 animate-pulse rounded-full" />
+      {phase === 'active' ? (
+        <div className="flex flex-col items-center gap-8">
+          <div className="bg-primary/20 size-24 animate-pulse rounded-full" />
 
-        <p className="text-muted-foreground text-sm font-medium">Reflecting...</p>
+          <p className="text-muted-foreground text-sm font-medium">In call...</p>
 
-        <p className="text-foreground font-mono text-2xl tabular-nums">
-          {formatTime(elapsed)}
-          <span className="text-muted-foreground"> / {formatTime(MAX_DURATION_SECONDS)}</span>
-        </p>
+          <p className="text-foreground font-mono text-2xl tabular-nums">
+            {formatTime(elapsed)}
+            <span className="text-muted-foreground"> / {formatTime(MAX_DURATION_SECONDS)}</span>
+          </p>
 
-        <Button variant="outline" size="lg" onClick={handleEnd} className="mt-4">
-          End Session
-        </Button>
-      </div>
+          <Button variant="outline" size="lg" onClick={handleEndCall} className="mt-4">
+            End Call
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-4">
+          <div className="border-primary size-10 animate-spin rounded-full border-4 border-t-transparent" />
+          <p className="text-muted-foreground text-sm font-medium">
+            Evaluating your performance...
+          </p>
+        </div>
+      )}
     </section>
   );
 };

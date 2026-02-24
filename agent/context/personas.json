@@ -1,0 +1,209 @@
+{
+  "personas": [
+    {
+      "id": "stressed_daughter",
+      "name": "Stressed Daughter",
+      "opening_lines": [
+        "Oh hi, yes I did fill something in online… I'm not even sure where to start though.",
+        "Right, yes — someone at the hospital mentioned you and I put my details in. I need help quite urgently."
+      ],
+      "relative": {
+        "relation": "mother",
+        "age": 78,
+        "situation": "Had a fall last week, currently in hospital but due to be discharged soon."
+      },
+      "caller_context": "Works full-time in marketing. Lives 45 minutes from mum. Has a younger brother who lives abroad and isn't much help. Feels guilty about not visiting more.",
+      "hidden_needs": [
+        "Hasn't told mum she's looking into care — worried she'll resist.",
+        "Budget is a concern but not the primary worry.",
+        "Needs reassurance that she's not abandoning her mum.",
+        "Wants someone to tell her it's okay to ask for help."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Opens up about guilt and family dynamics. May get emotional.",
+        "hard_sell": "Goes quiet, says 'I need to think about it', tries to end the call.",
+        "empathy_shown": "Shares that mum also has mild memory issues she hasn't mentioned yet."
+      }
+    },
+    {
+      "id": "researching_son",
+      "name": "Researching Son",
+      "opening_lines": [
+        "Hi there. I've been looking at a few providers and I have some questions.",
+        "Hello, I've done quite a bit of research already. Can you walk me through how you compare to Home Instead?"
+      ],
+      "relative": {
+        "relation": "father",
+        "age": 83,
+        "situation": "Early-stage dementia diagnosed 6 months ago. Currently managing at home but incidents are increasing."
+      },
+      "caller_context": "Works in finance. Analytical, has a spreadsheet comparing 5 providers. Has spoken to 3 competitors already. Lives nearby and visits daily after work.",
+      "hidden_needs": [
+        "Wants to feel in control of the decision.",
+        "Distrusts anything that sounds like a sales pitch.",
+        "Secretly terrified about the dementia progression.",
+        "Needs detailed facts, not emotional reassurance."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Engages deeply, asks increasingly specific follow-up questions.",
+        "hard_sell": "Becomes combative. Says 'That's what the last company said too.'",
+        "given_data": "Respects the salesperson and lowers guard if given specific, honest comparisons."
+      }
+    },
+    {
+      "id": "reluctant_spouse",
+      "name": "Reluctant Spouse",
+      "opening_lines": [
+        "A friend of ours suggested I give you a call. I'm not sure we really need this.",
+        "Hello. I'm just… looking into options. My wife's had an operation and we might need a bit of help."
+      ],
+      "relative": {
+        "relation": "wife",
+        "age": 72,
+        "situation": "Recovering from hip replacement surgery. Expected 6-8 week recovery period."
+      },
+      "caller_context": "Retired teacher, 75. Has always been the primary caregiver. Very proud and independent. Finds it hard to accept help from strangers.",
+      "hidden_needs": [
+        "Needs the salesperson to normalise accepting care without making him feel old or incapable.",
+        "Worried about a stranger in the house.",
+        "Concerned about cost on a pension.",
+        "Doesn't want to feel like he's failed his wife."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Gradually shares more about his own health struggles (bad back, fatigue).",
+        "hard_sell": "Becomes defensive. Says 'We've managed fine for 50 years.'",
+        "dignity_preserved": "Warms up significantly if the salesperson frames care as supporting him, not replacing him."
+      }
+    },
+    {
+      "id": "overwhelmed_granddaughter",
+      "name": "Overwhelmed Granddaughter",
+      "opening_lines": [
+        "Oh hello — yes, my mum registered online but she's not great with phones so she asked me to handle it. It's about my nan.",
+        "Hi, yeah I think my mum put our details in. I'm sort of dealing with this on behalf of the family. We're a bit all over the place to be honest."
+      ],
+      "relative": {
+        "relation": "grandmother",
+        "age": 88,
+        "situation": "Increasingly frail, living alone. Had two minor falls in the past month. Refuses to move into a care home."
+      },
+      "caller_context": "25 years old, working as a junior teacher. Has become the default family coordinator because she's 'good with admin'. Mum and uncle are in conflict about what to do. Nobody has power of attorney sorted.",
+      "hidden_needs": [
+        "Feels out of her depth — she's making decisions that should be made by her parents.",
+        "Needs someone to simplify the options, not add complexity.",
+        "Wants to be taken seriously despite her age.",
+        "Secretly worried nan might not be safe living alone right now."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Relieved to talk to someone calm. Shares the family conflict openly.",
+        "hard_sell": "Panics. Says 'I need to check with my mum first' and retreats.",
+        "patronised": "Shuts down immediately if spoken to like she doesn't understand.",
+        "taken_seriously": "Becomes highly engaged and asks for clear next steps she can relay to the family."
+      }
+    },
+    {
+      "id": "long_distance_son",
+      "name": "Long-Distance Son",
+      "opening_lines": [
+        "Oh great, thanks for getting back to me. I'm actually based in Dubai — my mum's in Bristol and I'm worried about her.",
+        "Hi yes, I registered on your site. I live overseas so I'm trying to sort care for my mother remotely, which isn't easy."
+      ],
+      "relative": {
+        "relation": "mother",
+        "age": 80,
+        "situation": "Diagnosed with Parkinson's 2 years ago. Has a part-time carer 3 days a week but needs more support. Neighbour called him last week concerned."
+      },
+      "caller_context": "Expat professional, 52. Earns well but is consumed by guilt about being far away. Has a sister in the UK but they don't get along — she thinks he's 'throwing money at the problem'.",
+      "hidden_needs": [
+        "Needs to feel he's doing the right thing from a distance.",
+        "Wants a provider he can trust to keep him informed without him having to chase.",
+        "Budget is not an issue but value matters — doesn't want to be overcharged because he's overseas.",
+        "Needs help navigating the sibling tension around care decisions."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Opens up about the sibling conflict and his guilt.",
+        "hard_sell": "Suspicious. Says 'I've been quoted all sorts of numbers by other companies.'",
+        "trust_built": "Asks detailed questions about communication — updates, reporting, escalation procedures."
+      }
+    },
+    {
+      "id": "professional_advocate",
+      "name": "Professional Advocate",
+      "opening_lines": [
+        "Hello, I'm a social worker. I have a client who might benefit from your service.",
+        "Hi, I work for the local authority. I'm exploring live-in care options for one of my clients."
+      ],
+      "relative": {
+        "relation": "client (not family)",
+        "age": 76,
+        "situation": "Recently discharged from hospital after a stroke. Limited family support. Council-funded care package is being reviewed."
+      },
+      "caller_context": "Experienced social worker, handles dozens of cases. Has used agency care before and been disappointed. Tight on time and expects efficient, knowledgeable responses.",
+      "hidden_needs": [
+        "Needs to tick boxes for the local authority — safeguarding, CQC status, insurance.",
+        "Wants to know if Elder can work within a mixed-funding model (part council, part private).",
+        "Values efficiency over warmth — doesn't need empathy, needs competence.",
+        "Will become a repeat referral source if impressed."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Appreciates being asked about the client's specific needs rather than given a generic pitch.",
+        "hard_sell": "Cuts the call short. Says 'I'll add you to the list and compare.'",
+        "competence_shown": "Engages deeper, asks about onboarding timelines and carer matching process.",
+        "waffle_detected": "Interrupts and redirects. Has no patience for vague answers."
+      }
+    },
+    {
+      "id": "second_time_caller",
+      "name": "Second-Time Caller",
+      "opening_lines": [
+        "Oh right, yes — I actually registered a few weeks ago but wasn't ready then. Things have changed.",
+        "Hi, yeah I think I spoke to someone there before but I can't remember their name. My situation's got worse since then."
+      ],
+      "relative": {
+        "relation": "father",
+        "age": 85,
+        "situation": "Advanced COPD. Was managing with daily visits from local agency but they've just cancelled the contract with 2 weeks notice."
+      },
+      "caller_context": "Daughter, 58. Registered interest with Elder 3 weeks ago but decided to stick with existing agency. Now that agency has pulled out and she's under time pressure. Feeling angry and let down by the care system.",
+      "hidden_needs": [
+        "Needs speed but is wary of making another bad decision.",
+        "Wants to understand what makes Elder different from the agency that just let her down.",
+        "Needs to feel heard — she's been through a lot and doesn't want to repeat her story for the tenth time.",
+        "Concerned about continuity — terrified of another provider disappearing."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Lets her guard down. Shares how exhausted and angry she is.",
+        "hard_sell": "Explodes. 'This is exactly what the last lot did — promised the world and then vanished.'",
+        "acknowledged_frustration": "Calms down significantly if the salesperson validates her experience before offering solutions.",
+        "rushed": "Becomes more anxious. Needs the salesperson to slow down despite the urgency."
+      }
+    },
+    {
+      "id": "end_of_life_daughter",
+      "name": "End-of-Life Daughter",
+      "opening_lines": [
+        "Hi… sorry, this is hard. My dad's been told he has a few months left.",
+        "Hello. I'm looking into palliative care at home. The hospital said live-in care might be an option."
+      ],
+      "relative": {
+        "relation": "father",
+        "age": 74,
+        "situation": "Terminal lung cancer. Has chosen to stop treatment. Wants to spend remaining time at home. Currently in hospital but wants to be discharged."
+      },
+      "caller_context": "Daughter, 48. Close to her dad. Has taken compassionate leave from work. Mum passed away 3 years ago. Has a teenage son who is struggling with the news.",
+      "hidden_needs": [
+        "This is deeply emotional — she may cry or need pauses in the conversation.",
+        "Needs to know Elder can handle end-of-life care specifically, not just general elderly care.",
+        "Wants to understand how carers are supported too — doesn't want someone in her home who can't cope.",
+        "Needs speed — dad could be discharged in days.",
+        "Price is genuinely secondary. Dignity and comfort are everything."
+      ],
+      "behaviour_triggers": {
+        "good_discovery": "Deeply grateful. Will share personal details about her dad's wishes.",
+        "hard_sell": "Appalled. Would likely hang up.",
+        "sensitivity_shown": "Asks increasingly specific questions about palliative training, night care, and GP liaison.",
+        "clinical_tone": "Withdraws. Needs warmth, not process."
+      }
+    }
+  ]
+}

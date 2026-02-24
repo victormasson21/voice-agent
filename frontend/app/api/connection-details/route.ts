@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     // Include user ID in room name so the agent can identify the user
     const participantName = 'user';
     const participantIdentity = `user_${user.id}`;
-    const roomName = `reflect_${user.id}_${Date.now()}`;
+    const roomName = `train_${user.id}_${Date.now()}`;
 
     const participantToken = await createParticipantToken(
       { identity: participantIdentity, name: participantName },

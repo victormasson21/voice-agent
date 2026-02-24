@@ -36,9 +36,11 @@ export default function LoginPage() {
     <div className="flex min-h-svh items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8 text-center">
         <div>
-          <h1 className="text-foreground text-3xl font-semibold tracking-tight">Reflect</h1>
+          <h1 className="text-foreground text-3xl font-semibold tracking-tight">
+            Elder Sales Trainer
+          </h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            A voice companion for self-reflection
+            Practice sales conversations with simulated customers
           </p>
         </div>
 

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/victormasson/Repos/livekit-voice-agent diff HEAD)",
+      "Bash(git -C /Users/victormasson/Repos/livekit-voice-agent log --oneline -20)"
+    ]
+  }
+}
