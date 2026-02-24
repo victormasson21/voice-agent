@@ -47,7 +47,7 @@ function ScoreBar({ score }: { score: number }) {
 
 export function ScorecardView({ scorecard, onDone }: ScorecardViewProps) {
   return (
-    <div className="flex min-h-svh flex-col">
+    <div className="flex flex-col">
       <header className="flex items-center justify-between px-4 py-3 sm:px-6">
         <h1 className="text-foreground text-lg font-semibold">Session Results</h1>
         <Button variant="ghost" size="sm" onClick={onDone}>
@@ -55,7 +55,7 @@ export function ScorecardView({ scorecard, onDone }: ScorecardViewProps) {
         </Button>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-8 sm:px-6">
+      <div className="px-4 pb-8 sm:px-6">
         <div className="mx-auto max-w-2xl space-y-6">
           {/* Overall Score */}
           <div className="flex flex-col items-center gap-3 py-6">
