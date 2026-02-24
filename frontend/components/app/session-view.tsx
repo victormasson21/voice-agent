@@ -124,7 +124,7 @@ export const SessionView = ({
           </p>
 
           <Button variant="outline" size="lg" onClick={handleEndCall} className="mt-4">
-            End Call
+            Stop conversation
           </Button>
         </div>
       ) : (

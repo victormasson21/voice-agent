@@ -35,6 +35,7 @@ export function ViewController({ appConfig }: ViewControllerProps) {
   const { isConnected, start, end, room } = session;
   const [viewState, setViewState] = useState<ViewState>('welcome');
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
+  const [connecting, setConnecting] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Listen for scorecard data messages from the agent
@@ -98,16 +99,25 @@ export function ViewController({ appConfig }: ViewControllerProps) {
 
   // When start is called, transition to session view
   const handleStart = useCallback(async () => {
+    setConnecting(true);
     setScorecard(null);
-    setViewState('session');
-    await start();
+    try {
+      await start();
+      setViewState('session');
+    } finally {
+      setConnecting(false);
+    }
   }, [start]);
 
   return (
     <AnimatePresence mode="wait">
       {viewState === 'welcome' && (
         <motion.div key="welcome" {...VIEW_MOTION_PROPS}>
-          <WelcomeView startButtonText={appConfig.startButtonText} onStartCall={handleStart} />
+          <WelcomeView
+            startButtonText={connecting ? 'Initiating conversation...' : appConfig.startButtonText}
+            onStartCall={handleStart}
+            disabled={connecting}
+          />
         </motion.div>
       )}
       {viewState === 'session' && (
