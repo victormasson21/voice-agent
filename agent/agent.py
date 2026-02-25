@@ -67,10 +67,10 @@ async def entrypoint(ctx: agents.JobContext):
         llm=openai.realtime.RealtimeModel(
             voice="alloy",
             model="gpt-realtime-mini",
-            temperature=0.7,
+            temperature=0.6,
             turn_detection=TurnDetection(
                 type="semantic_vad",
-                eagerness="low",
+                eagerness="medium",
                 create_response=True,
                 interrupt_response=True,
             ),

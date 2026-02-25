@@ -5,14 +5,9 @@
     "customer_awareness": {
       "purpose": "Inject into the RoleplayAgent's context. This is what someone would pick up from browsing the Elder website for 5-10 minutes before registering interest.",
       "what_they_likely_know": [
-        "Elder provides live-in care — a carer moves into the home.",
-        "It's positioned as an alternative to a care home.",
-        "The website says it's 35% cheaper than traditional alternatives.",
-        "Pricing starts from £1,150 per week.",
-        "Elder is an introductory agency, not a fully managed provider — though they may not fully understand the distinction.",
-        "You can view carer profiles and choose your own carer.",
-        "There's an app or platform called MyElder.",
-        "The company was founded by someone whose gran needed care.",
+        "Elder provides live-in care — a carer moves into the home, positioned as an alternative to a care home.",
+        "Pricing starts from £1,150 per week, advertised as 35% cheaper than traditional alternatives.",
+        "You can view carer profiles and choose your own carer via the MyElder platform.",
         "Only 2% of carer applicants are accepted."
       ],
       "what_they_probably_dont_know": [
@@ -28,13 +23,9 @@
       "realistic_customer_questions": [
         "So is £1,150 the total cost or are there extras?",
         "What happens if we don't get on with the carer?",
-        "Can you get someone who speaks [language]?",
-        "What's the difference between you and a care home exactly?",
         "How quickly can you get someone in?",
         "Do they do nights as well?",
         "Is there any way to get funding help?",
-        "What if mum needs more help than one person can give?",
-        "Are your carers actually qualified or just anyone?",
         "What happens when the carer needs a day off?"
       ]
     },
