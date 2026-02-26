@@ -6,6 +6,17 @@ import { useRoomContext } from '@livekit/components-react';
 import { Button } from '@/components/ui/button';
 import { parseDataMessage } from '@/lib/livekit';
 
+const EXAMPLE_PROMPTS = [
+  "Can you tell more about your [parent] and what they're current needs are?",
+  'Have you looked into any other care options so far?',
+  "Can you tell me a bit about what's prompted you to look into care?",
+  'How are things day to day at the moment? What does a typical day look like?',
+  'How are you coping with everything? It sounds like a lot.',
+  'Do you have a sense of timeline — is this quite urgent or more planning ahead?',
+  "What's your biggest worry right now?",
+  'What would be the most helpful next step for you?',
+];
+
 const MAX_DURATION_SECONDS = 300;
 const READY_TIMEOUT_MS = 15_000;
 
@@ -101,7 +112,7 @@ export const SessionView = ({
 
   return (
     <section
-      className="bg-background flex h-svh w-svw flex-col items-center justify-center"
+      className="bg-background flex h-svh w-svw flex-col items-center justify-center overflow-y-auto"
       {...props}
     >
       {phase === 'connecting' ? (
@@ -110,7 +121,7 @@ export const SessionView = ({
           <p className="text-muted-foreground text-sm font-medium">Preparing your customer...</p>
         </div>
       ) : phase === 'active' ? (
-        <div className="flex flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-8 px-4">
           <div className="bg-primary/20 size-24 animate-pulse rounded-full" />
 
           <p className="text-muted-foreground text-sm font-medium">In call...</p>
@@ -123,6 +134,22 @@ export const SessionView = ({
           <Button variant="outline" size="lg" onClick={handleEndCall} className="mt-4">
             Stop conversation
           </Button>
+
+          <div className="mt-4 w-full max-w-md">
+            <h2 className="text-muted-foreground mb-3 text-center text-xs font-semibold tracking-wider uppercase">
+              Example prompts — get the conversation going
+            </h2>
+            <ul className="space-y-2">
+              {EXAMPLE_PROMPTS.map((prompt, i) => (
+                <li
+                  key={i}
+                  className="text-muted-foreground border-border rounded-lg border px-3 py-2 text-sm"
+                >
+                  &ldquo;{prompt}&rdquo;
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-4">
