@@ -28,12 +28,16 @@ spec:
             exec:
               command:
                 - pg_isready
+                - -U
+                - postgres
             initialDelaySeconds: 10
             periodSeconds: 15
           readinessProbe:
             exec:
               command:
                 - pg_isready
+                - -U
+                - postgres
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
