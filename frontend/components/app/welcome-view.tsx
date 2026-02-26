@@ -32,8 +32,13 @@ export function WelcomeView({ startButtonText, onStartCall, disabled }: WelcomeV
             Sales Trainer
           </h1>
           <p className="text-muted-foreground mt-4 text-base">
-            Practice inbound sales conversations with simulated Elder customers. You&apos;ll receive
-            a scorecard after each session.
+            Practice inbound sales conversations with simulated Elder customers. The voice agent
+            will initiate the conversation when you click start. You&apos;ll receive a scorecard
+            after each session.
+          </p>
+          <p className="text-muted-foreground mt-4 text-base font-bold">
+            After you speak there might be a short delay before the agent responds. The longer you
+            speak, the longer that delay might be.{' '}
           </p>
           <Button
             size="lg"
