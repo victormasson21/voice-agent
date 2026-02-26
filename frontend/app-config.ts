@@ -3,11 +3,6 @@ export interface AppConfig {
   pageDescription: string;
   companyName: string;
 
-  supportsChatInput: boolean;
-  supportsVideoInput: boolean;
-  supportsScreenShare: boolean;
-  isPreConnectBufferEnabled: boolean;
-
   logo: string;
   startButtonText: string;
   accent?: string;
@@ -25,11 +20,6 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   companyName: 'Elder',
   pageTitle: 'Elder Sales Trainer',
   pageDescription: 'Practice sales conversations with simulated customers',
-
-  supportsChatInput: false,
-  supportsVideoInput: false,
-  supportsScreenShare: false,
-  isPreConnectBufferEnabled: false,
 
   logo: '/elder-logo.png',
   accent: '#4A6FA5',

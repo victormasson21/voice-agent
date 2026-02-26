@@ -1,8 +1,12 @@
+import asyncio
 import json
+import logging
 import os
 from pathlib import Path
 
 from openai import AsyncOpenAI
+
+logger = logging.getLogger("sales-trainer")
 
 _CONTEXT_DIR = Path(__file__).resolve().parent / "context"
 
@@ -113,9 +117,10 @@ async def evaluate_session(
             )
             content = response.choices[0].message.content.strip()
             return json.loads(content)
-        except (json.JSONDecodeError, Exception) as exc:
-            if attempt == 1:
-                print(f"Evaluation failed after 2 attempts: {exc}")
-                return _FALLBACK_SCORECARD
+        except Exception as exc:
+            logger.warning("Evaluation attempt %d failed: %s", attempt + 1, exc)
+            if attempt < 1:
+                await asyncio.sleep(1)
 
+    logger.error("All evaluation attempts failed")
     return _FALLBACK_SCORECARD

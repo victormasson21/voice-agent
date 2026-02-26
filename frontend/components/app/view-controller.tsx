@@ -9,6 +9,7 @@ import { type Scorecard, ScorecardView } from '@/components/app/scorecard-view';
 import { SessionView } from '@/components/app/session-view';
 import { WelcomeView } from '@/components/app/welcome-view';
 import { useSessionEndedIntentionally } from '@/hooks/useSessionEndedIntentionally';
+import { parseDataMessage } from '@/lib/livekit';
 
 const MotionSessionView = motion.create(SessionView);
 
@@ -52,23 +53,20 @@ export function ViewController({ appConfig }: ViewControllerProps) {
     ) => {
       if (topic !== 'scorecard') return;
 
-      try {
-        const msg = JSON.parse(new TextDecoder().decode(payload));
+      const msg = parseDataMessage(payload);
+      if (!msg) return;
 
-        if (msg.type === 'status' && msg.status === 'evaluating') {
-          // Agent initiated end_call — mark as intentional so we don't
-          // show an "agent left unexpectedly" error when it disconnects
-          markIntentional();
-          return;
-        }
+      if (msg.type === 'status' && msg.status === 'evaluating') {
+        // Agent initiated end_call — mark as intentional so we don't
+        // show an "agent left unexpectedly" error when it disconnects
+        markIntentional();
+        return;
+      }
 
-        if (msg.type === 'scorecard' && msg.data) {
-          setScorecard(msg.data);
-          setViewState('scorecard');
-          if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        }
-      } catch {
-        // Ignore malformed messages
+      if (msg.type === 'scorecard' && msg.data) {
+        setScorecard(msg.data as Scorecard);
+        setViewState('scorecard');
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
       }
     };
 

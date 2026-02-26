@@ -31,6 +31,16 @@ CARE_RECIPIENTS = load_care_recipients()
 COMPANY_KNOWLEDGE = load_company_knowledge()
 
 
+async def _publish_data(ctx: agents.JobContext, payload: dict, topic: str) -> None:
+    """Publish a JSON data message to the room."""
+    try:
+        await ctx.room.local_participant.publish_data(
+            json.dumps(payload), topic=topic,
+        )
+    except Exception as e:
+        logger.warning("Failed to publish %s to %s: %s", payload.get("type"), topic, e)
+
+
 def _build_conversation_history(session: AgentSession) -> list[dict]:
     """Extract text conversation from the session's chat context."""
     history = []
@@ -100,13 +110,7 @@ async def entrypoint(ctx: agents.JobContext):
     )
 
     # Signal frontend that agent is ready and about to speak
-    try:
-        await ctx.room.local_participant.publish_data(
-            json.dumps({"type": "status", "status": "ready"}),
-            topic="agent_status",
-        )
-    except Exception as e:
-        logger.warning("Failed to publish ready status: %s", e)
+    await _publish_data(ctx, {"type": "status", "status": "ready"}, "agent_status")
 
     # Agent speaks opening line in character
     for attempt in range(3):
@@ -149,24 +153,12 @@ async def _handle_evaluation(ctx: agents.JobContext, session: AgentSession) -> N
         return
 
     # Signal frontend that evaluation is in progress
-    try:
-        await ctx.room.local_participant.publish_data(
-            json.dumps({"type": "status", "status": "evaluating"}),
-            topic="scorecard",
-        )
-    except Exception as e:
-        logger.warning("Failed to publish evaluating status: %s", e)
+    await _publish_data(ctx, {"type": "status", "status": "evaluating"}, "scorecard")
 
     scorecard = await evaluate_session(conversation_history, COMPANY_KNOWLEDGE)
 
     # Publish scorecard to frontend
-    try:
-        await ctx.room.local_participant.publish_data(
-            json.dumps({"type": "scorecard", "data": scorecard}),
-            topic="scorecard",
-        )
-    except Exception as e:
-        logger.error("Failed to publish scorecard: %s", e)
+    await _publish_data(ctx, {"type": "scorecard", "data": scorecard}, "scorecard")
 
     logger.info("Scorecard published: %s (%d/40)", scorecard.get("overall_level"), scorecard.get("overall_score", 0))
 

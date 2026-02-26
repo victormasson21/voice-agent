@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RoomEvent } from 'livekit-client';
 import { useRoomContext } from '@livekit/components-react';
 import { Button } from '@/components/ui/button';
+import { parseDataMessage } from '@/lib/livekit';
 
 const MAX_DURATION_SECONDS = 300;
 const READY_TIMEOUT_MS = 15_000;
@@ -56,13 +57,9 @@ export const SessionView = ({
     ) => {
       if (topic !== 'agent_status') return;
 
-      try {
-        const msg = JSON.parse(new TextDecoder().decode(payload));
-        if (msg.type === 'status' && msg.status === 'ready') {
-          setPhase((prev) => (prev === 'connecting' ? 'active' : prev));
-        }
-      } catch {
-        // Ignore malformed messages
+      const msg = parseDataMessage(payload);
+      if (msg?.type === 'status' && msg.status === 'ready') {
+        setPhase((prev) => (prev === 'connecting' ? 'active' : prev));
       }
     };
 
