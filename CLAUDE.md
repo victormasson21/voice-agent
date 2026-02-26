@@ -114,8 +114,8 @@ pnpm format:check                 # Check formatting
 3. Agent `entrypoint()` called → picks random persona + care recipient
 4. System prompt built with persona backstory, care recipient data, Elder customer awareness
 5. Agent speaks opening line in character (e.g., "Oh hi, I filled something in online...")
-6. Trainee leads the sales conversation (up to 10 minutes)
-7. Session ends: user clicks End Call → frontend publishes `end_call` data message, or agent calls `end_call` tool, or 10min auto-close
+6. Trainee leads the sales conversation (up to 5 minutes)
+7. Session ends: user clicks End Call → frontend publishes `end_call` data message, or agent calls `end_call` tool, or 5min auto-close
 8. Agent publishes "evaluating" status to room via data channel
 9. Agent runs GPT-4o-mini evaluation against rubric (8 criteria, 1-5 each)
 10. Agent publishes scorecard JSON to room via data channel

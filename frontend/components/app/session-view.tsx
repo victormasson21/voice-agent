@@ -5,7 +5,7 @@ import { RoomEvent } from 'livekit-client';
 import { useRoomContext } from '@livekit/components-react';
 import { Button } from '@/components/ui/button';
 
-const MAX_DURATION_SECONDS = 600;
+const MAX_DURATION_SECONDS = 300;
 const READY_TIMEOUT_MS = 15_000;
 
 function formatTime(totalSeconds: number): string {

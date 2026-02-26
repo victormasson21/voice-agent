@@ -21,7 +21,7 @@ logging.getLogger("hpack").setLevel(logging.WARNING)
 
 logger = logging.getLogger("sales-trainer")
 
-SESSION_MAX_DURATION = 600  # 10 minutes
+SESSION_MAX_DURATION = 300  # 5 minutes
 
 server = AgentServer()
 
@@ -122,7 +122,7 @@ async def entrypoint(ctx: agents.JobContext):
             else:
                 await asyncio.sleep(1)
 
-    # Auto-close after 10 minutes
+    # Auto-close after 5 minutes
     async def auto_close():
         await asyncio.sleep(SESSION_MAX_DURATION)
         try:

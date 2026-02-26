@@ -112,9 +112,9 @@ User clicks "Start training"
   → Agent joins, picks random persona + care recipient
   → Agent speaks opening line in character
 
-Trainee leads the sales conversation (up to 10 min)
+Trainee leads the sales conversation (up to 5 min)
 
-Session ends (user clicks End Call / agent calls end_call tool / 10min auto-close)
+Session ends (user clicks End Call / agent calls end_call tool / 5min auto-close)
   → Agent publishes "evaluating" status via data channel
   → GPT-4o-mini scores the conversation against 8 criteria
   → Scorecard JSON published to room via data channel
@@ -130,7 +130,7 @@ Session ends (user clicks End Call / agent calls end_call tool / 10min auto-clos
 - **Data channel topic convention**: Agent-to-frontend messages use topic `scorecard`. Frontend-to-agent messages use topic `end_call`. The payload is always JSON-encoded as a string.
 - **No database persistence**: Scorecards are ephemeral — they only exist in the LiveKit data channel. If you want to persist them later, add a database write in `_handle_evaluation()`.
 - **Evaluation timeout**: The frontend has a 60s timeout waiting for the scorecard. If the OpenAI API is slow or fails, the user gets returned to the welcome screen.
-- **Auto-close**: The 10-minute auto-close still exists. The agent will try to wrap up the call naturally before closing.
+- **Auto-close**: The 5-minute auto-close still exists. The agent will try to wrap up the call naturally before closing.
 
 ## Development
 
