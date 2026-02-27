@@ -45,9 +45,11 @@ export default function LoginPage() {
             priority
             className="mb-6"
           />
-          <h1 className="text-foreground text-3xl font-semibold tracking-tight">Sales Trainer</h1>
+          <h1 className="text-foreground text-3xl font-semibold tracking-tight">
+            Frontline Trainer
+          </h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            Practice sales conversations with simulated customers
+            Practice sales and support conversations with simulated customers
           </p>
         </div>
 

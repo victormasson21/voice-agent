@@ -1,6 +1,6 @@
-# Elder Sales Trainer
+# Elder Frontline Trainer
 
-A voice-based sales training tool for [Elder](https://www.elder.org). Trainees practice inbound sales calls with AI-simulated customer personas, then receive a scorecard evaluating their performance across 8 criteria.
+A voice-based training tool for [Elder](https://www.elder.org) frontline teams. Trainees practice sales and customer support conversations with AI-simulated customer personas, then receive a scorecard evaluating their performance across 8 criteria.
 
 Built with [LiveKit Agents](https://docs.livekit.io/agents), OpenAI Realtime API, Next.js, and Supabase.
 
@@ -9,7 +9,7 @@ Built with [LiveKit Agents](https://docs.livekit.io/agents), OpenAI Realtime API
 1. Sign in with a magic link
 2. Click **Start training** to begin a voice call with a simulated customer
 3. The agent randomly picks a customer persona (stressed daughter, researching son, etc.) and plays the role
-4. Lead the conversation as you would a real Elder inbound inquiry
+4. Lead the conversation as you would a real Elder inbound call
 5. When the call ends, the agent evaluates your performance and displays a scorecard
 
 ## Prerequisites
@@ -112,7 +112,7 @@ User clicks "Start training"
   → Agent joins, picks random persona + care recipient
   → Agent speaks opening line in character
 
-Trainee leads the sales conversation (up to 5 min)
+Trainee leads the conversation (up to 5 min)
 
 Session ends (user clicks End Call / agent calls end_call tool / 5min auto-close)
   → Agent publishes "evaluating" status via data channel

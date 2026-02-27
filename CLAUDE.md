@@ -1,8 +1,8 @@
-# Elder Sales Trainer
+# Elder Frontline Trainer
 
 ## Project Overview
 
-Voice-based sales training tool for Elder (live-in elderly care company). Trainees practice inbound sales calls with AI-simulated customer personas, then receive a visual scorecard evaluating their performance across 8 criteria.
+Voice-based training tool for Elder (live-in elderly care company) frontline teams. Trainees practice sales and customer support conversations with AI-simulated customer personas, then receive a visual scorecard evaluating their performance across 8 criteria.
 
 ## Architecture
 
@@ -34,7 +34,7 @@ livekit-voice-agent/
 - **Styling**: Tailwind CSS 4, shadcn/ui components, Motion (Framer Motion)
 - **LiveKit SDK**: `livekit-client`, `@livekit/components-react`, `livekit-server-sdk`
 - **Package manager**: pnpm 9.15.9
-- **App config**: `frontend/app-config.ts` — branding (Elder Sales Trainer)
+- **App config**: `frontend/app-config.ts` — branding (Elder Frontline Trainer)
 
 ## Key Files
 
@@ -114,7 +114,7 @@ pnpm format:check                 # Check formatting
 3. Agent `entrypoint()` called → picks random persona + care recipient
 4. System prompt built with persona backstory, care recipient data, Elder customer awareness
 5. Agent speaks opening line in character (e.g., "Oh hi, I filled something in online...")
-6. Trainee leads the sales conversation (up to 5 minutes)
+6. Trainee leads the conversation (up to 5 minutes)
 7. Session ends: user clicks End Call → frontend publishes `end_call` data message, or agent calls `end_call` tool, or 5min auto-close
 8. Agent publishes "evaluating" status to room via data channel
 9. Agent runs GPT-4o-mini evaluation against rubric (8 criteria, 1-5 each)
@@ -140,4 +140,4 @@ GitHub Actions workflow (`frontend/.github/workflows/build-and-test.yaml`):
 - Started with STT-LLM-TTS pipeline (AssemblyAI + GPT-4.1-mini + Cartesia)
 - Switched to speech-to-speech using OpenAI Realtime API for lower latency
 - Transformed into Reflect journaling companion with Supabase auth + session persistence
-- Transformed into Elder Sales Trainer with roleplay personas and post-session evaluation
+- Transformed into Elder Frontline Trainer with roleplay personas and post-session evaluation

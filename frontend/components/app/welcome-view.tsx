@@ -29,12 +29,12 @@ export function WelcomeView({ startButtonText, onStartCall, disabled }: WelcomeV
       <div className="flex flex-1 flex-col justify-center px-6 pb-8 sm:px-10 lg:px-20">
         <div className="max-w-lg">
           <h1 className="text-foreground text-3xl font-semibold tracking-tight sm:text-4xl">
-            Sales Trainer
+            Frontline Trainer
           </h1>
           <p className="text-muted-foreground mt-4 text-base">
-            Practice inbound sales conversations with simulated Elder customers. The voice agent
-            will initiate the conversation when you click start. You&apos;ll receive a scorecard
-            after each session.
+            Practice sales and customer support conversations with simulated Elder customers. The
+            voice agent will initiate the conversation when you click start. You&apos;ll receive a
+            scorecard after each session.
           </p>
           <p className="text-muted-foreground mt-4 text-base font-bold">
             After you speak there might be a short delay before the agent responds. The longer you

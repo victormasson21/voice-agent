@@ -18,8 +18,8 @@ export interface AppConfig {
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
   companyName: 'Elder',
-  pageTitle: 'Elder Sales Trainer',
-  pageDescription: 'Practice sales conversations with simulated customers',
+  pageTitle: 'Elder Frontline Trainer',
+  pageDescription: 'Practice sales and support conversations with simulated customers',
 
   logo: '/elder-logo.png',
   accent: '#4A6FA5',

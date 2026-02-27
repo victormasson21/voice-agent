@@ -1,11 +1,11 @@
-# Elder Sales Training Agent — Test Script
-## A cheat sheet for pretending you know how to sell
+# Elder Frontline Training Agent — Test Script
+## A cheat sheet for practising customer conversations
 
 ---
 
 ### PHASE 1: Opening the call (first 30 seconds)
 
-The agent will pick up as a customer responding to your callback. You're the Elder sales exec — you initiate.
+The agent will pick up as a customer responding to your callback. You're the Elder frontline team member — you initiate.
 
 **Good openers to try:**
 - "Hi, is that [name]? This is [your name] from Elder. You registered some interest on our website — is now a good time to chat?"
