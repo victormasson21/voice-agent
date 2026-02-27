@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { parseDataMessage } from '@/lib/livekit';
 
 const EXAMPLE_PROMPTS = [
-  "Can you tell more about your [parent] and what they're current needs are?",
+  'Can you tell me more about your [parent] and what their current needs are?',
   'Have you looked into any other care options so far?',
   "Can you tell me a bit about what's prompted you to look into care?",
   'How are things day to day at the moment? What does a typical day look like?',
